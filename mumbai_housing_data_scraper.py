@@ -17,7 +17,7 @@ def get_checkpoint():
     try:
         if os.path.exists(CHECKPOINT_FILE):
             with open(CHECKPOINT_FILE, 'r') as f:
-                return int(f.read().strip())
+                return int(f.read().strip()) + 1
     except Exception as e:
         logging.error(f"Error reading checkpoint: {e}")
     return 1
