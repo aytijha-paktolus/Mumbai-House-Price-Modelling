@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 BASE_URL = "https://housing.com/in/buy/mumbai/mumbai?page={}"
 OUTPUT_EXCEL_FILE = "mumbai_housing_price.xlsx"
-MAX_PAGES = 2
+MAX_PAGES = 1876
 CHECKPOINT_FILE = "last_processed_page.txt"
 
 def get_checkpoint():
