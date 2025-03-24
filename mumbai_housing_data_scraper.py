@@ -6,25 +6,19 @@ import logging
 import time
 import os
 
-<<<<<<< HEAD
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-=======
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Constants
->>>>>>> dev
 BASE_URL = "https://housing.com/in/buy/mumbai/mumbai?page={}"
 OUTPUT_EXCEL_FILE = "mumbai_housing_price.xlsx"
 MAX_PAGES = 1876
 CHECKPOINT_FILE = "last_processed_page.txt"
 
 def get_checkpoint():
-<<<<<<< HEAD
-=======
+
     """Reads the last processed page from the checkpoint file."""
->>>>>>> dev
+
     try:
         if os.path.exists(CHECKPOINT_FILE):
             with open(CHECKPOINT_FILE, 'r') as f:
@@ -34,10 +28,8 @@ def get_checkpoint():
     return 1
 
 def save_checkpoint(page_num):
-<<<<<<< HEAD
-=======
+
     """Saves the current page number to the checkpoint file."""
->>>>>>> dev
     try:
         with open(CHECKPOINT_FILE, 'w') as f:
             f.write(str(page_num))
@@ -45,10 +37,8 @@ def save_checkpoint(page_num):
         logging.error(f"Error saving checkpoint: {e}")
 
 def get_urls(page_num):
-<<<<<<< HEAD
-=======
     """Fetches all project URLs from a given page number."""
->>>>>>> dev
+
     url = BASE_URL.format(page_num)
     logging.info(f"Fetching page {page_num}: {url}")
     try:
@@ -62,10 +52,8 @@ def get_urls(page_num):
         soup = BeautifulSoup(response.content, 'html.parser')
         json_ld_scripts = soup.find_all('script', type='application/ld+json')
 
-<<<<<<< HEAD
-=======
+
         # Extract URLs from JSON-LD scripts
->>>>>>> dev
         for script in json_ld_scripts:
             try:
                 json_data = json.loads(script.string)
@@ -96,12 +84,8 @@ def get_urls(page_num):
     logging.warning(f"No valid project URLs found on page {page_num}")
     return []
 
-<<<<<<< HEAD
-def fetch_json_data(url):
-=======
 def fetch_json_data(url, position):
     """Fetches JSON data from a given project URL."""
->>>>>>> dev
     logging.info(f"Fetching project data: {url}")
     try:
         response = requests.get(url, verify=False)
@@ -113,30 +97,6 @@ def fetch_json_data(url, position):
     try:
         soup = BeautifulSoup(response.content, 'html.parser')
         json_ld_scripts = soup.find_all('script', type='application/ld+json')
-<<<<<<< HEAD
-        filtered_script = None
-
-        for script in json_ld_scripts:
-            try:
-                data = json.loads(script.string)
-                if isinstance(data, list):
-                    for item in data:
-                        if "@type" in item and "ApartmentComplex" in item.get("@type", []) and "Product" in item.get("@type", []):
-                            filtered_script = item
-                            break
-                elif isinstance(data, dict):
-                    if "@type" in data and "ApartmentComplex" in data.get("@type", []) and "Product" in data.get("@type", []):
-                        filtered_script = data
-                        break
-            except json.JSONDecodeError:
-                continue
-
-        if filtered_script:
-            return filtered_script
-        else:
-            logging.warning(f"No matching script found for {url}")
-            return None
-=======
 
         # Extract JSON data
         for script in json_ld_scripts:
@@ -149,14 +109,11 @@ def fetch_json_data(url, position):
 
         logging.warning(f"No matching script found for position - {position} {url}")
         return None
->>>>>>> dev
+
     except Exception as e:
         logging.error(f"Failed to parse project data from {url}: {e}")
         return None
 
-<<<<<<< HEAD
-def main():
-=======
 def process_apartment_data(json_data, position, url, all_amenities):
     """Processes JSON data and extracts relevant fields."""
     if not isinstance(json_data, list):
@@ -204,8 +161,7 @@ def process_apartment_data(json_data, position, url, all_amenities):
         return None
 
 def main():
-    """Main function that Run the web scraper and save the data."""
->>>>>>> dev
+
     all_amenities = set()
     start_page = get_checkpoint()
 
@@ -222,47 +178,7 @@ def main():
 
             for position, url in urls:
                 logging.info(f"Page no - {page_num} Processing Position {position} — {url}")
-                
-<<<<<<< HEAD
-                json_data = fetch_json_data(url)
 
-                if json_data:
-                    try:
-                        name = json_data['name'] if 'name' in json_data else ''
-                        description = json_data['description'] if 'description' in json_data else ''
-                        low_price = json_data['offers']['lowPrice'] if 'offers' in json_data and 'lowPrice' in json_data['offers'] else ''
-                        high_price = json_data['offers']['highPrice'] if 'offers' in json_data and 'highPrice' in json_data['offers'] else ''
-                        address = json_data['geo']['address'] if 'geo' in json_data and 'address' in json_data['geo'] else ''
-                        latitude = json_data['geo']['latitude'] if 'geo' in json_data and 'latitude' in json_data['geo'] else ''
-                        longitude = json_data['geo']['longitude'] if 'geo' in json_data and 'longitude' in json_data['geo'] else ''
-                        brand_founding_date = json_data['brand'][0]['foundingDate'] if 'brand' in json_data and json_data['brand'] and 'foundingDate' in json_data['brand'][0] else ''
-                        amenities = json_data['amenityFeature'] if 'amenityFeature' in json_data else []
-
-                        all_amenities.update(amenities)
-
-                        apartment_data = {
-                            'Position': position,
-                            'Project URL': url,
-                            'Name': name,
-                            'Description': description,
-                            'Low Price': low_price,
-                            'High Price': high_price,
-                            'Address': address,
-                            'Latitude': latitude,
-                            'Longitude': longitude,
-                            'Brand Founding Date': brand_founding_date,
-                        }
-                        amenity_data = {f'Amenity_{amenity}': 1 if amenity in amenities else 0 for amenity in all_amenities}
-                        apartment_data.update(amenity_data)
-                        all_data.append(apartment_data)
-                    except Exception as e:
-                        logging.error(f"Error processing data for {url}: {e}")
-
-            if all_data:
-                if os.path.exists(OUTPUT_EXCEL_FILE):
-                    df_existing = pd.read_excel(OUTPUT_EXCEL_FILE)
-                    df_new = pd.DataFrame(all_data)
-=======
                 json_data = fetch_json_data(url, position)
 
                 if isinstance(json_data, list):
@@ -283,7 +199,6 @@ def main():
                 if os.path.exists(OUTPUT_EXCEL_FILE):
                     df_existing = pd.read_excel(OUTPUT_EXCEL_FILE)
                     df_new = pd.DataFrame(all_data).drop_duplicates()
->>>>>>> dev
                     df_combined = pd.concat([df_existing, df_new], ignore_index=True)
                     df_combined.to_excel(OUTPUT_EXCEL_FILE, index=False)
                 else:
