@@ -159,6 +159,50 @@ def process_apartment_data(json_data, position, url, all_amenities):
     except Exception as e:
         logging.error(f"Error processing data for {url}: {e}")
         return None
+    
+def test_property_type_extraction(start_page=20, test_pages=1):
+    types_to_skip = {"apartment"}
+    new_property_types = set()
+    observed_types = set() 
+
+    for page_num in range(start_page,start_page + test_pages):
+        logging.info(f"Testing page {page_num}")
+        urls = get_urls(page_num)
+
+        if not urls:
+            logging.warning(f"No projects found on page {page_num}")
+            continue
+
+        for position,url in urls:
+            logging.info(f"Testing property type extraction for URL:{url}")
+            json_data = fetch_json_data(url)
+
+            if json_data:
+                try:
+                    property_type=json_data.get("@type","")
+
+                    observed_types.add(type(property_type))
+                    logging.info(f"Raw @type value: {property_type}, Type:{type(property_type)}")
+
+                    if isinstance(property_type, list):
+                        logging.info(f"Full @type list content: {property_type}")
+                        for item in property_type:
+                            if isinstance(item,str):
+                                item = item.lower()
+                                if item not in types_to_skip:
+                                    new_property_types.add(item)
+
+                    elif isinstance(property_type, str):
+                        property_type = property_type.lower()
+                        if property_type not in types_to_skip:
+                            new_property_types.add(property_type)
+                except Exception as e:
+                    logging.error(f"Error processing property type for {url}: {e}")
+
+    if new_property_types:
+        logging.info(f"New property types found: {new_property_types}")
+
+    logging.info(f"Observed data types in @type: {observed_types}")
 
 def main():
 
@@ -215,3 +259,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    #test_property_type_extraction(start_page=20, test_pages=1)  #Uncomment for testing purposes
