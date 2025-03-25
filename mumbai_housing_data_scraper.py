@@ -131,7 +131,8 @@ def process_apartment_data(json_data, position, url, all_amenities):
         brand_founding_date = json_data.get('brand', [{}])[0].get('foundingDate', '') if isinstance(json_data.get('brand'), list) else json_data.get('brand', {}).get('foundingDate', '')
         amenities = json_data.get('amenityFeature', [])
 
-        all_amenities.update(amenities)
+        if amenities:
+            all_amenities.update(amenities)
 
         apartment_data = {
             'Position': position,
