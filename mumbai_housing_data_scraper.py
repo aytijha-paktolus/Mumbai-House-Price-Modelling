@@ -191,11 +191,14 @@ def test_property_type_extraction(start_page=20, test_pages=1):
                                 item = item.lower()
                                 if item not in types_to_skip:
                                     new_property_types.add(item)
+                                    types_to_skip.add(item)
 
                     elif isinstance(property_type, str):
                         property_type = property_type.lower()
                         if property_type not in types_to_skip:
                             new_property_types.add(property_type)
+                            types_to_skip.add(property_type)
+                            
                 except Exception as e:
                     logging.error(f"Error processing property type for {url}: {e}")
 
