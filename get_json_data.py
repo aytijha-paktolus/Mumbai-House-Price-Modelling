@@ -6,7 +6,7 @@ urls = [
      "" # add url to check json
 ]
 
-with open("housing_scraper_output_519_12.json", "w") as outfile:
+with open("housing_scraper_output.json", "w") as outfile:
     for url in urls:
         response = requests.get(url, verify=False)
         if response.status_code == 200:
